@@ -8,9 +8,9 @@ import java.io.IOException;
 @FzOSInternalImplementation
 public class File {
     private final FileInputStream fos;
-    static class FileDescriptor {
-        long fileSize;
-        long offset;
+    public static class FileDescriptor {
+        public long fileSize;
+        public long offset;
     }
 
     private final FileDescriptor descriptor;
