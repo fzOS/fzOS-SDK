@@ -8,11 +8,6 @@ import java.io.IOException;
 @FzOSInternalImplementation
 public class File {
     private final FileInputStream fos;
-    public static class FileDescriptor {
-        public long fileSize;
-        public long offset;
-    }
-
     private final FileDescriptor descriptor;
     public File(String filepath) throws IOException {
         java.io.File internFile = new java.io.File(filepath);
