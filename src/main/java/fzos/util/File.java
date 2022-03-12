@@ -7,9 +7,11 @@ import java.io.IOException;
 
 @FzOSInternalImplementation
 public class File {
+    private final String filepath;
     private final FileInputStream fos;
     private final FileDescriptor descriptor;
     public File(String filepath) throws IOException {
+        this.filepath = filepath;
         java.io.File internFile = new java.io.File(filepath);
         fos = new FileInputStream(internFile);
         descriptor = new FileDescriptor();

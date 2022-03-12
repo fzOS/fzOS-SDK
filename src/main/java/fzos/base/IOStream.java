@@ -5,6 +5,9 @@ import fzos.FzOSInternalImplementation;
 @FzOSInternalImplementation
 public class IOStream {
     public static void printf(String format,Object... args) {
-        System.out.println(format);
+        System.out.printf(format,args);
+    }
+    public static void println(String str) {
+        System.out.println(str);
     }
 }
