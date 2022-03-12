@@ -1,5 +1,9 @@
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.instrument.Instrumentation;
@@ -11,13 +15,17 @@ import javax.swing.*;
 
 class FzOSEmulatorWindow extends JFrame {
     public static final char COLOR_SWITCHING_CHAR = '%';
-    final BufferedImage image;
-    final JLabel label = new JLabel();
-    final int width,height;
-    final OutputStream os;
+    private final BufferedImage image;
+    private final JLabel label = new JLabel();
+    private final OutputStream os;
+    private final KeyboardInputStream is;
+    private static abstract class KeyboardInputStream extends InputStream {
+        public static final int KEYBOARD_BUFFER_SIZE=512;
+        protected final char[] keyboardRingBuffer = new char[KEYBOARD_BUFFER_SIZE];
+        protected volatile int front=0,rear=0;
+        public abstract void put(char in);
+    }
     public FzOSEmulatorWindow(int width,int height,String title) {
-        this.width = width;
-        this.height = height;
         setTitle(title);
         setResizable(false);
         image = new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);
@@ -69,6 +77,13 @@ class FzOSEmulatorWindow extends JFrame {
                     color = 0;
                     return;
                 }
+                if(i=='\b') {
+                    if(currentCharX>=1) {
+                        currentCharX--;
+                    }
+                    image.setRGB(currentCharX*8,currentCharY*16,8,16,FontData.fontData[' '],0,8);
+                    return;
+                }
                 if(i=='\n') {
                     newLine();
                     return;
@@ -89,10 +104,65 @@ class FzOSEmulatorWindow extends JFrame {
                     newLine();
                 }
             }
+            @Override
+            public void flush() {
+                label.repaint();
+            }
+        };
+        KeyListener listener = new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                is.put(e.getKeyChar());
+            }
+            @Override
+            public void keyPressed(KeyEvent e) {}
+            @Override
+            public void keyReleased(KeyEvent e) {}
+        };
+        addKeyListener(listener);
+        setFocusable(true);
+        is = new KeyboardInputStream() {
+            @Override
+            public int available() throws IOException {
+                return (front+KEYBOARD_BUFFER_SIZE-rear)/KEYBOARD_BUFFER_SIZE;
+            }
+
+            @Override
+            public void put(char in) {
+                synchronized(keyboardRingBuffer) {
+                    keyboardRingBuffer[front] = in;
+                    front = (front + 1) % KEYBOARD_BUFFER_SIZE;
+                    try {
+                        keyboardRingBuffer.notify();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public int read() throws IOException {
+                synchronized(keyboardRingBuffer) {
+                    while(front==rear) {
+                        try {
+                            keyboardRingBuffer.wait();
+                        }
+                        catch (Exception ex){
+                            ex.printStackTrace();
+                        }
+                    }
+                    char c = keyboardRingBuffer[rear];
+                    rear = (rear+1)%KEYBOARD_BUFFER_SIZE;
+                    return c;
+                }
+            }
         };
     }
     public OutputStream getOutputStream() {
         return os;
+    }
+    public InputStream getInputStream() {
+        return is;
     }
 }
 public class FzOSAgent {
@@ -116,5 +186,6 @@ public class FzOSAgent {
         FzOSEmulatorWindow window = new FzOSEmulatorWindow(width,height,title);
         window.setVisible(true);
         System.setOut(new PrintStream(window.getOutputStream()));
+        System.setIn(window.getInputStream());
     }
 }

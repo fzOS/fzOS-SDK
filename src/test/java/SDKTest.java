@@ -1,9 +1,8 @@
+
 import fzos.audio.Audio;
 import fzos.audio.AudioManager;
 import fzos.base.IOStream;
 import fzos.util.File;
-
-import java.io.IOException;
 
 public class SDKTest {
     public static void main(String[] args) throws Exception {
@@ -14,8 +13,20 @@ public class SDKTest {
         fileSize = (int) f.read(b,f.getDescriptor().fileSize);
         String banner = new String(b);
         IOStream.println(banner);
-        f = new File("test.wav");
-        Audio a = AudioManager.openAudioFromFile(f);
-        AudioManager.playAudio(a);
+        char ch;
+        while(true) {
+            ch = IOStream.getchar();
+            if(ch==(char)-1) {
+                break;
+            }
+            IOStream.putchar(ch);
+            IOStream.flush();
+            if(ch=='p') {
+                f = new File("test.wav");
+                Audio a = AudioManager.openAudioFromFile(f);
+                AudioManager.playAudio(a);
+            }
+        }
+        IOStream.println("End.");
     }
 }
