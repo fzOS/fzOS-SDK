@@ -40,8 +40,8 @@
                     </descriptorRefs>
                     <archive>
                         <manifestEntries>
-                            <Premain-Class>FzOSAgent</Premain-Class>
-                            <Agent-Class>FzOSAgent</Agent-Class>
+                            <Premain-Class>emulator.FzOSAgent</Premain-Class>
+                            <Agent-Class>emulator.FzOSAgent</Agent-Class>
                             <Can-Redefine-Classes>true</Can-Redefine-Classes>
                             <Can-Retransform-Classes>true</Can-Retransform-Classes>
                         </manifestEntries>

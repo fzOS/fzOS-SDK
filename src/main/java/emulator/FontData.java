@@ -1,3 +1,7 @@
+package emulator;
+
+import javax.swing.plaf.synth.SynthTextAreaUI;
+
 public class FontData {
     public static final int FONT_COUNT=256;
     static int[][] fontData= new int[FONT_COUNT][];
@@ -4623,5 +4627,15 @@ public class FontData {
             fontData[i] = colorBuffer;
         }
     }
+    public static int[] upscaleTo12x24Px(char c,int backgroundColor) {
+        int[] newFontData = new int[12*24];
+        int[] rawData = fontData[c];
+        for(int j=0;j<24;j++) {
+            for(int i=0;i<12;i++) {
+                newFontData[j*12+i] = (rawData[(((int)(j/1.5))*8+(int)(i/1.5))])|backgroundColor;
+            }
+        }
+        return newFontData;
+    };
 }
 

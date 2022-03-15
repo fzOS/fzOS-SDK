@@ -1,3 +1,5 @@
+package emulator;
+
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
@@ -12,12 +14,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.*;
-
 class FzOSEmulatorWindow extends JFrame {
     public static final char COLOR_SWITCHING_CHAR = '%';
     private final BufferedImage image;
     private final JLabel label = new JLabel();
     private final OutputStream os;
+    public BufferedImage getImage() {
+        return image;
+    }
+    public JLabel getLabel() {
+        return label;
+    }
     private final KeyboardInputStream is;
     private static abstract class KeyboardInputStream extends InputStream {
         public static final int KEYBOARD_BUFFER_SIZE=512;
@@ -25,7 +32,7 @@ class FzOSEmulatorWindow extends JFrame {
         protected volatile int front=0,rear=0;
         public abstract void put(char in);
     }
-    public FzOSEmulatorWindow(int width,int height,String title) {
+    public FzOSEmulatorWindow(final int width, final int height, String title) {
         setTitle(title);
         setResizable(false);
         image = new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);
@@ -166,7 +173,9 @@ class FzOSEmulatorWindow extends JFrame {
     }
 }
 public class FzOSAgent {
-    public static final PrintStream originalPrintStream=System.out;
+    private static final PrintStream originalPrintStream=System.out;
+    private static final InputStream originalInputStream=System.in;
+    private static FzOSEmulatorWindow window;
     public static void premain(String arg, Instrumentation inst) {
         System.out.println("Loading agent...");
         int width=800,height=600;
@@ -183,9 +192,25 @@ public class FzOSAgent {
             title = titleMatcher.group(1);
         }
         FontData.prepareFonts();
-        FzOSEmulatorWindow window = new FzOSEmulatorWindow(width,height,title);
+        window = new FzOSEmulatorWindow(width,height,title);
         window.setVisible(true);
-        System.setOut(new PrintStream(window.getOutputStream()));
-        System.setIn(window.getInputStream());
+        setGraphicalMode(false);
+    }
+    public static void setGraphicalMode(boolean b) {
+        if(b) {
+            System.setOut(originalPrintStream);
+            System.setIn(originalInputStream);
+        }
+        else {
+            System.setOut(new PrintStream(window.getOutputStream()));
+            System.setIn(window.getInputStream());
+        }
+    }
+    public static BufferedImage getImage() {
+        return window.getImage();
+    }
+
+    public static JLabel getLabel() {
+        return window.getLabel();
     }
 }
