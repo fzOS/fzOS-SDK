@@ -30,6 +30,7 @@ public class WindowManager {
     private static int[] minimizeActiveRGB,minimizeInactiveRGB,
                          maximizeActiveRGB,maximizeInactiveRGB,
                          closeActiveRGB,closeInactiveRGB;
+    private static Window activatedWindow;
     static {
         BufferedImage backgroundImage1;
         try {
@@ -83,44 +84,88 @@ public class WindowManager {
             windowLabel.repaint();
         }
         windowLabel.addMouseListener(new MouseListener() {
+            private int startX, startY;
             @Override
             public void mouseClicked(MouseEvent e) {
-                int changed = 0;
                 int clickX = e.getX(),clickY = e.getY();
-                for(Window w:windows) {
-                    //Check range.
-                    if(clickX>=w.windowPositionX
-                     &&clickX<=w.windowPositionX+w.windowWidth
-                     &&clickY>=w.windowPositionY
-                     &&clickY<=w.windowPositionY+w.windowHeight) {
-                        //TODO:Notify window click event.
-                        if((w.windowStatus&Window.WINDOW_STATUS_INACTIVE)==Window.WINDOW_STATUS_INACTIVE) {
-                            w.windowStatus &= (~Window.WINDOW_STATUS_INACTIVE);
-                            repaintWindowCaption(w);
-                            changed = 1;
+                Window w = getWindowAtPosition(clickX,clickY);
+                activateWindow(w);
+                if(w!=null) {
+                    clickX -= w.windowPositionX;
+                    clickY -= w.windowPositionY;
+                    if(clickY<WINDOW_CAPTION_HEIGHT) {
+                        String button1="",button2="",button3="";
+                        if((w.windowMode&Window.WINDOW_MODE_NO_CLOSE)!=Window.WINDOW_MODE_NO_CLOSE) {
+                            button3 = "Close!";
+                            if((w.windowMode&Window.WINDOW_MODE_NO_MAXIMIZE)!=Window.WINDOW_MODE_NO_MAXIMIZE) {
+                                button2 = "Maximize!";
+                            }
+                            if((w.windowMode&Window.WINDOW_MODE_NO_MINIMIZE)!=Window.WINDOW_MODE_NO_MINIMIZE) {
+                                if(!button2.equals("")) {
+                                    button1 = "Minimize!";
+                                }
+                                else {
+                                    button2 = "Minimize!";
+                                }
+                            }
                         }
-                    }
-                    else {
-                        if((w.windowStatus&Window.WINDOW_STATUS_INACTIVE)==0) {
-                            w.windowStatus |= Window.WINDOW_STATUS_INACTIVE;
-                            repaintWindowCaption(w);
-                            changed = 1;
+                        else {
+                            if((w.windowMode&Window.WINDOW_MODE_NO_MAXIMIZE)!=Window.WINDOW_MODE_NO_MAXIMIZE) {
+                                button3 = "Maximize!";
+                            }
+                            if((w.windowMode&Window.WINDOW_MODE_NO_MINIMIZE)!=Window.WINDOW_MODE_NO_MINIMIZE) {
+                                if(!button3.equals("")) {
+                                    button2 = "Minimize!";
+                                }
+                                else {
+                                    button3 = "Minimize!";
+                                }
+                            }
+                        }
+
+                        //In Window Title......
+                        //24--8--24--8--24--10
+                        int buttonAreaPosition = clickX-(w.windowWidth-98);
+                        System.out.printf("Pos X:%d\n",buttonAreaPosition);
+                        if((buttonAreaPosition>=0)&&(buttonAreaPosition<=24)) {
+                            System.out.println(button1);
+                        }
+                        else if((buttonAreaPosition>=32)&&(buttonAreaPosition<=56)) {
+                            System.out.println(button2);
+                        }
+                        else if((buttonAreaPosition>=64)&&(buttonAreaPosition<=88)) {
+                            System.out.println(button3);
+                            if(button3.equals("Close!")) {
+                                //TODO:Send close event to window.
+                                destroyWindow(w);
+                                composite();
+                            }
                         }
                     }
                 }
-                if(changed==1) {
-                    composite();
-                }
+                //TODO:Send Window Click Event.
             }
 
             @Override
             public void mousePressed(MouseEvent e) {
-
+                startX = e.getX();
+                startY = e.getY();
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
-
+                if(e.getX()- startX !=0&&e.getY()- startY !=0) {
+                    Window w = getWindowAtPosition(startX, startY);
+                    if(w != null) {
+                        if(startY-w.windowPositionY<=WINDOW_CAPTION_HEIGHT) {
+                            //Activate it.
+                            activateWindow(w);
+                            w.windowPositionX += (e.getX()- startX);
+                            w.windowPositionY += (e.getY()- startY);
+                            composite();
+                        }
+                    }
+                }
             }
 
             @Override
@@ -142,19 +187,51 @@ public class WindowManager {
             }
         }
     }
+    public static void activateWindow(Window w) {
+        boolean needsComposite = false;
+        if(w != activatedWindow) {
+            if(w!=null) {
+                w.windowStatus &= ~(Window.WINDOW_STATUS_INACTIVE);
+                repaintWindowCaption(w);
+                windows.remove(w);
+                windows.add(w);
+                needsComposite = true;
+            }
+            if(activatedWindow!=null) {
+                activatedWindow.windowStatus |= Window.WINDOW_STATUS_INACTIVE;
+                repaintWindowCaption(activatedWindow);
+                needsComposite = true;
+            }
+        }
+        activatedWindow = w;
+        if(needsComposite) {
+            composite();
+        }
+    }
     public static void composite() {
         windowImage.setRGB(0,0,
                 emulatorWindowWidth,
                 emulatorWindowHeight,
                 backgroundRGB,0, emulatorWindowWidth);
+        int compositeAreaLeft,compositeAreaRight,compositeAreaTop,compositeAreaBottom;
         for(Window w:windows) {
             if(w.windowStatus==Window.WINDOW_STATUS_HIDDEN) {
                 continue;
             }
-            windowImage.setRGB(w.windowPositionX,w.windowPositionY,
-                    w.windowWidth,w.windowHeight,
-                    w.imageData,0,w.windowWidth
-            );
+            compositeAreaLeft = (w.windowPositionX<0)?(-w.windowPositionX):0;
+            compositeAreaRight = ((w.windowPositionX+w.windowWidth)>emulatorWindowWidth)?
+                                    (emulatorWindowWidth-w.windowPositionX):
+                                    w.windowWidth;
+            compositeAreaTop = (w.windowPositionY<0)?(-w.windowPositionY):0;
+            compositeAreaBottom = ((w.windowPositionY+w.windowHeight+WINDOW_CAPTION_HEIGHT)>emulatorWindowHeight)?
+                    (emulatorWindowHeight-w.windowPositionY):
+                    w.windowHeight+WINDOW_CAPTION_HEIGHT;
+            for(int i=compositeAreaTop;i<compositeAreaBottom;i++) {
+                windowImage.setRGB(Math.max(w.windowPositionX, 0),w.windowPositionY+i,
+                        compositeAreaRight-compositeAreaLeft,1,
+                        w.imageData,w.windowWidth*i+compositeAreaLeft,compositeAreaRight-compositeAreaLeft
+                );
+            }
         }
         windowLabel.repaint();
     }
@@ -185,23 +262,23 @@ public class WindowManager {
             for(int j=0;j<24;j++) {
                 System.arraycopy(minimizeRGB,j*24,w.imageData,(4+j)*w.windowWidth+drawPositionLeft,24);
             }
-            drawPositionLeft = w.windowWidth - (w.windowWidth-drawPositionLeft)*2;
-            if(w.windowTitle!=null && !(w.windowTitle.length()==0)) {
-                int charCount = w.windowTitle.length();
-                if((charCount*12+10)>drawPositionLeft) {
-                    charCount = (drawPositionLeft-10)/12;
+        }
+        drawPositionLeft = w.windowWidth - (w.windowWidth-drawPositionLeft)*2;
+        if(w.windowTitle!=null && !(w.windowTitle.length()==0)) {
+            int charCount = w.windowTitle.length();
+            if((charCount*12+10)>drawPositionLeft) {
+                charCount = (drawPositionLeft-10)/12;
+            }
+            drawPositionLeft = (w.windowWidth - (charCount*12))/2;
+            for(int i=0;i<charCount;i++) {
+                int[] charRGB = FontData.upscaleTo12x24Px(w.windowTitle.charAt(i),
+                        ((w.windowStatus&Window.WINDOW_STATUS_INACTIVE)==Window.WINDOW_STATUS_INACTIVE)?
+                                WINDOW_CAPTION_COLOR_INACTIVE:
+                                WINDOW_CAPTION_COLOR_ACTIVE);
+                for(int j=0;j<24;j++) {
+                    System.arraycopy(charRGB,j*12,w.imageData,(5+j)*w.windowWidth+drawPositionLeft,12);
                 }
-                drawPositionLeft = (w.windowWidth - (charCount*12))/2;
-                for(int i=0;i<charCount;i++) {
-                    int[] charRGB = FontData.upscaleTo12x24Px(w.windowTitle.charAt(i),
-                            ((w.windowStatus&Window.WINDOW_STATUS_INACTIVE)==Window.WINDOW_STATUS_INACTIVE)?
-                                    WINDOW_CAPTION_COLOR_INACTIVE:
-                                    WINDOW_CAPTION_COLOR_ACTIVE);
-                    for(int j=0;j<24;j++) {
-                        System.arraycopy(charRGB,j*12,w.imageData,(5+j)*w.windowWidth+drawPositionLeft,12);
-                    }
-                    drawPositionLeft += 12;
-                }
+                drawPositionLeft += 12;
             }
         }
     }
@@ -209,8 +286,36 @@ public class WindowManager {
         int[] windowData = new int[width*(height+WINDOW_CAPTION_HEIGHT)];
         Window w = new Window(attributes,title,width,height,posX,posY,windowData);
         repaintWindowCaption(w);
-        Arrays.fill(w.imageData, WINDOW_CAPTION_HEIGHT*width,height*width-1,0x00FFFFFF);
+        Arrays.fill(w.imageData, WINDOW_CAPTION_HEIGHT*width,(height+WINDOW_CAPTION_HEIGHT)*width-1,0x00FFFFFF);
+        for(Window ws:windows) {
+            if((ws.windowStatus&Window.WINDOW_STATUS_INACTIVE)!=Window.WINDOW_STATUS_INACTIVE) {
+                ws.windowStatus |= Window.WINDOW_STATUS_INACTIVE;
+                repaintWindowCaption(ws);
+            }
+        }
+        activatedWindow = w;
         windows.add(w);
         return w;
+    }
+    public static Window getWindowAtPosition(int posX, int posY) {
+        for(int i=windows.size()-1;i>=0;i--) {
+            Window w = windows.get(i);
+            //Check range.
+            if(posX>=w.windowPositionX
+                    &&posX<=w.windowPositionX+w.windowWidth
+                    &&posY>=w.windowPositionY
+                    &&posY<=w.windowPositionY+w.windowHeight+WINDOW_CAPTION_HEIGHT) {
+                return w;
+            }
+        }
+        return null;
+    }
+    public static void destroyWindow(Window w) {
+        windows.remove(w);
+        if(windows.size()>0) {
+            w = windows.get(windows.size()-1);
+            w.windowStatus &=(~Window.WINDOW_STATUS_INACTIVE);
+        }
+        repaintWindowCaption(w);
     }
 }

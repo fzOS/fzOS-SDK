@@ -1,10 +1,7 @@
-
 import fzos.base.IOStream;
 import fzos.gui.Window;
 import fzos.gui.WindowManager;
 import fzos.util.File;
-
-import java.util.Arrays;
 
 public class SDKTest {
     public static void main(String[] args) throws Exception {
@@ -16,13 +13,12 @@ public class SDKTest {
         String banner = new String(b);
         IOStream.println(banner);
         WindowManager.enterGraphicalMode();
-        Thread.sleep(500);
         Window w = WindowManager.createWindow(Window.WINDOW_MODE_NORMAL,
                 512, 662,25,50,
                 "Hello GUI Test!");
         w.show();
-        w = WindowManager.createWindow(Window.WINDOW_MODE_NORMAL,
-                600, 200,800,650,
+        w = WindowManager.createWindow(Window.WINDOW_MODE_NO_MINIMIZE|Window.WINDOW_MODE_NO_CLOSE,
+                600, 200,80,100,
                 "Hello GUI Test Window #2!");
         w.show();
 //        char ch;
