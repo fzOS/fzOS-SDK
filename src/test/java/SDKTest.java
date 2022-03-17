@@ -16,25 +16,12 @@ public class SDKTest {
         Window w = WindowManager.createWindow(Window.WINDOW_MODE_NORMAL,
                 512, 662,25,50,
                 "Hello GUI Test!");
+        WindowManager.setWindowEvent(w,new MainWindowEvent(w));
         w.show();
         w = WindowManager.createWindow(Window.WINDOW_MODE_NO_MINIMIZE|Window.WINDOW_MODE_NO_CLOSE,
                 600, 200,80,100,
                 "Hello GUI Test Window #2!");
         w.show();
-//        char ch;
-//        while(true) {
-//            ch = IOStream.getchar();
-//            if(ch==(char)-1) {
-//                break;
-//            }
-//            IOStream.putchar(ch);
-//            IOStream.flush();
-//            if(ch=='p') {
-//                f = new File("test.wav");
-//                Audio a = AudioManager.openAudioFromFile(f);
-//                AudioManager.playAudio(a);
-//            }
-//        }
         IOStream.println("End.");
     }
 }

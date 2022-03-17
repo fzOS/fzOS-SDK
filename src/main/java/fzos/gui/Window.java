@@ -17,7 +17,7 @@ public class Window {
     public String windowTitle;
     public int windowWidth,windowHeight,windowPositionX,windowPositionY;
     public int[] imageData;
-
+    public WindowEvent event;
     public Window(int windowMode, String windowTitle, int windowWidth, int windowHeight, int windowPositionX, int windowPositionY, int[] imageData) {
         this.windowMode = windowMode;
         this.windowTitle = windowTitle;

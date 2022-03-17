@@ -126,7 +126,6 @@ public class WindowManager {
                         //In Window Title......
                         //24--8--24--8--24--10
                         int buttonAreaPosition = clickX-(w.windowWidth-98);
-                        System.out.printf("Pos X:%d\n",buttonAreaPosition);
                         if((buttonAreaPosition>=0)&&(buttonAreaPosition<=24)) {
                             System.out.println(button1);
                         }
@@ -137,13 +136,20 @@ public class WindowManager {
                             System.out.println(button3);
                             if(button3.equals("Close!")) {
                                 //TODO:Send close event to window.
+                                if(w.event!=null) {
+                                    w.event.onClose();
+                                }
                                 destroyWindow(w);
                                 composite();
                             }
                         }
                     }
+                    else {
+                        if(w.event!=null) {
+                            w.event.onClick(clickX,clickY-WINDOW_CAPTION_HEIGHT);
+                        }
+                    }
                 }
-                //TODO:Send Window Click Event.
             }
 
             @Override
@@ -179,7 +185,7 @@ public class WindowManager {
             }
         });
     }
-    public static void ExitGraphicalMode() {
+    public static void exitGraphicalMode() {
         FzOSAgent.setGraphicalMode(false);
         for(int i = 0; i< emulatorWindowHeight; i++) {
             for(int j = 0; j< emulatorWindowWidth; j++) {
@@ -317,5 +323,8 @@ public class WindowManager {
             w.windowStatus &=(~Window.WINDOW_STATUS_INACTIVE);
         }
         repaintWindowCaption(w);
+    }
+    public static void setWindowEvent(Window w,WindowEvent we) {
+        w.event = we;
     }
 }
