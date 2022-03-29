@@ -13,7 +13,8 @@ public class AudioManager {
         Field stringField =  File.class.getDeclaredField("filepath");
         stringField.setAccessible(true);
         String fileName = (String)stringField.get(f);
-        AudioInputStream audioStream = AudioSystem.getAudioInputStream(new java.io.File(fileName));
+        AudioInputStream audioStream = AudioSystem.getAudioInputStream(new java.io.File(System.getProperty("user.dir")
+                +System.getProperty("file.separator")+fileName));
         AudioFormat audioFormat = audioStream.getFormat();
         byte[] data = audioStream.readAllBytes();
         return new Audio((int) audioFormat.getSampleRate(), audioFormat.getChannels(), audioFormat.getSampleSizeInBits(), data);

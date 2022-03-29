@@ -130,7 +130,7 @@ class FzOSEmulatorWindow extends JFrame {
         setFocusable(true);
         is = new KeyboardInputStream() {
             @Override
-            public int available() throws IOException {
+            public int available() {
                 return (front+KEYBOARD_BUFFER_SIZE-rear)/KEYBOARD_BUFFER_SIZE;
             }
 
@@ -148,7 +148,7 @@ class FzOSEmulatorWindow extends JFrame {
             }
 
             @Override
-            public int read() throws IOException {
+            public int read() {
                 synchronized(keyboardRingBuffer) {
                     while(front==rear) {
                         try {

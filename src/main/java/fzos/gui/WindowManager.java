@@ -34,20 +34,34 @@ public class WindowManager {
     static {
         BufferedImage backgroundImage1;
         try {
-            backgroundImage1 = ImageIO.read(new File("background.bmp"));
+            backgroundImage1 = ImageIO.read(new File(System.getProperty("user.dir")
+                    +System.getProperty("file.separator")
+                    +"background.bmp"));
             //Load Buttons.
             BufferedImage button;
-            button = ImageIO.read(new File("close_active.bmp"));
+            button = ImageIO.read(new File(System.getProperty("user.dir")
+                    +System.getProperty("file.separator")
+                    +"close_active.bmp"));
             closeActiveRGB = button.getRGB(0,0,24,24,null,0,24);
-            button = ImageIO.read(new File("close_inactive.bmp"));
+            button = ImageIO.read(new File(System.getProperty("user.dir")
+                    +System.getProperty("file.separator")
+                    +"close_inactive.bmp"));
             closeInactiveRGB = button.getRGB(0,0,24,24,null,0,24);
-            button = ImageIO.read(new File("maximize_active.bmp"));
+            button = ImageIO.read(new File(System.getProperty("user.dir")
+                    +System.getProperty("file.separator")
+                    +"maximize_active.bmp"));
             maximizeActiveRGB = button.getRGB(0,0,24,24,null,0,24);
-            button = ImageIO.read(new File("maximize_inactive.bmp"));
+            button = ImageIO.read(new File(System.getProperty("user.dir")
+                    +System.getProperty("file.separator")
+                    +"maximize_inactive.bmp"));
             maximizeInactiveRGB = button.getRGB(0,0,24,24,null,0,24);
-            button = ImageIO.read(new File("minimize_active.bmp"));
+            button = ImageIO.read(new File(System.getProperty("user.dir")
+                    +System.getProperty("file.separator")
+                    +"minimize_active.bmp"));
             minimizeActiveRGB = button.getRGB(0,0,24,24,null,0,24);
-            button = ImageIO.read(new File("minimize_inactive.bmp"));
+            button = ImageIO.read(new File(System.getProperty("user.dir")
+                    +System.getProperty("file.separator")
+                    +"minimize_inactive.bmp"));
             minimizeInactiveRGB = button.getRGB(0,0,24,24,null,0,24);
         } catch (IOException e) {
             e.printStackTrace();
