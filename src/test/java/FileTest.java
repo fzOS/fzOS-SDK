@@ -9,7 +9,7 @@ public class FileTest {
         IOStream.printf("size:%d\n",fd.fileSize);
         byte[] b = new byte[2];
         f.read(b,2);
-        IOStream.printf("data:%d%d\n",fd.fileSize);
+        IOStream.printf("data:(%c%c)\n",b[0],b[1]);
         IOStream.printf("offset:%d\n",fd.offset);
     }
 }
