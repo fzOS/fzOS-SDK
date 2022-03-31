@@ -7,8 +7,10 @@ import java.util.Map;
 
 @FzOSInternalImplementation
 public class ThreadManager {
+    public static int currentThreadId = 0;
     private static final Map<Thread,java.lang.Thread> threads = new HashMap<>();
     public static void registerThread(Thread t) {
+        t.threadId = currentThreadId++;
         t.threadStatus = Thread.THREAD_READY;
         threads.put(t,new java.lang.Thread(t::run));
     }
