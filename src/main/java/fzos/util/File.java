@@ -37,7 +37,7 @@ public class File {
         return size;
     }
     public long seek(long offset) throws IOException {
-        fos.getChannel().position(0);
+        fos.getChannel().position(offset);
         return offset;
     }
     public FileDescriptor getDescriptor() {
