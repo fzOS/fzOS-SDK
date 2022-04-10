@@ -7,6 +7,7 @@ public abstract class Thread {
     public static final int THREAD_BLOCKED=2;
     public static final int THREAD_TERMINATED=4;
     public int threadStatus;
+    public static final int THREAD_SIGNAL_TERMINATE=1;
     public abstract int run();
     public abstract int onSignalReceived(int signal);
 }

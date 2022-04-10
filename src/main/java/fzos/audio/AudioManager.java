@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 
 @FzOSInternalImplementation
 public class AudioManager {
+    private static Clip c;
     public static Audio openAudioFromFile(File f) throws Exception {
         Field stringField =  File.class.getDeclaredField("filepath");
         stringField.setAccessible(true);
@@ -22,9 +23,20 @@ public class AudioManager {
     public static void playAudio(Audio a) throws Exception {
         final AudioFormat format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,a.sampleRate,a.sampleDepth, a.channels, a.channels*a.sampleDepth/8,a.sampleRate,false);
         AudioInputStream audioStream = new AudioInputStream(new ByteArrayInputStream(a.data),format,a.data.length);
-        Clip c = AudioSystem.getClip();
-        c.open(audioStream);
-        c.start();
-        c.drain();
+        c = AudioSystem.getClip();
+        c.addLineListener((event)->{
+            if (event.getType() == LineEvent.Type.STOP)
+                synchronized (c) {
+                c.notify();
+            }
+        });
+        synchronized (c) {
+            c.open(audioStream);
+            c.start();
+            c.wait();
+        }
+    }
+    public static void stopAudio() {
+        c.stop();
     }
 }

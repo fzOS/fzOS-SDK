@@ -164,6 +164,7 @@ class FzOSEmulatorWindow extends JFrame {
                 }
             }
         };
+        System.setIn(is);
     }
     public OutputStream getOutputStream() {
         return os;
@@ -199,11 +200,11 @@ public class FzOSAgent {
     public static void setGraphicalMode(boolean b) {
         if(b) {
             System.setOut(originalPrintStream);
-            System.setIn(originalInputStream);
+            //System.setIn(originalInputStream);
         }
         else {
             System.setOut(new PrintStream(window.getOutputStream()));
-            System.setIn(window.getInputStream());
+            //System.setIn(window.getInputStream());
         }
     }
     public static BufferedImage getImage() {

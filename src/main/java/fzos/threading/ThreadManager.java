@@ -28,8 +28,12 @@ public class ThreadManager {
             ex.printStackTrace();
         }
     }
+    public static void sendSignal(Thread t,int sig) {
+        t.onSignalReceived(sig);
+    }
     public static void destroyThread(Thread t) {
         t.threadStatus = Thread.THREAD_TERMINATED;
-        threads.get(t).interrupt();
+        sendSignal(t,Thread.THREAD_SIGNAL_TERMINATE);
+        threads.get(t).stop();
     }
 }
