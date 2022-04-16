@@ -257,7 +257,7 @@ public class WindowManager {
         }
         windowLabel.repaint();
     }
-    public static void repaintWindowCaption(Window w) {
+    private static void repaintWindowCaption(Window w) {
         Arrays.fill(w.imageData, 0, WINDOW_CAPTION_HEIGHT* w.windowWidth -1,
                 ((w.windowStatus&Window.WINDOW_STATUS_INACTIVE)==Window.WINDOW_STATUS_INACTIVE)?
                 WINDOW_CAPTION_COLOR_INACTIVE:WINDOW_CAPTION_COLOR_ACTIVE);
@@ -319,7 +319,7 @@ public class WindowManager {
         windows.add(w);
         return w;
     }
-    public static Window getWindowAtPosition(int posX, int posY) {
+    private static Window getWindowAtPosition(int posX, int posY) {
         for(int i=windows.size()-1;i>=0;i--) {
             Window w = windows.get(i);
             //Check range.

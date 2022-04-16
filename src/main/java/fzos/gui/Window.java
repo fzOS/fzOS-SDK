@@ -1,5 +1,8 @@
 package fzos.gui;
 
+import fzos.FzOSInternalImplementation;
+
+@FzOSInternalImplementation
 public class Window {
     public static final int WINDOW_MODE_NORMAL      = 0x00000000;
     public static final int WINDOW_MODE_NO_MAXIMIZE = 0x00000001;
@@ -16,9 +19,9 @@ public class Window {
     public int windowStatus;
     public String windowTitle;
     public int windowWidth,windowHeight,windowPositionX,windowPositionY;
-    public int[] imageData;
+    public final int[] imageData;
     public WindowEvent event;
-    public Window(int windowMode, String windowTitle, int windowWidth, int windowHeight, int windowPositionX, int windowPositionY, int[] imageData) {
+    protected Window(int windowMode, String windowTitle, int windowWidth, int windowHeight, int windowPositionX, int windowPositionY, int[] imageData) {
         this.windowMode = windowMode;
         this.windowTitle = windowTitle;
         this.windowWidth = windowWidth;

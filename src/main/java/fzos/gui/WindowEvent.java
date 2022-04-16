@@ -8,4 +8,8 @@ public abstract class WindowEvent {
     public abstract void onClose();
     public abstract void onActivate();
     public abstract void onInactivate();
+    //WARN:Coldpoint VM Compliant code, DO NOT DELETE!
+    private void init() {
+
+    }
 }

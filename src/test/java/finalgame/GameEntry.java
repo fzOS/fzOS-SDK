@@ -14,8 +14,8 @@ public class GameEntry {
     public static int personX=11,personY=0;
     public static void main(String[] args) throws Exception {
         WindowManager.enterGraphicalMode();
-        BMPImage backgroundBMP = new BMPImage("map.bmp");
-        BMPImage personBMP     = new BMPImage("person.bmp");
+        BMPImage backgroundBMP = new BMPImage("/map.bmp");
+        BMPImage personBMP     = new BMPImage("/person.bmp");
         backgroundImageWidth = backgroundBMP.width;
         backgroundImageHeight = backgroundBMP.height;
         personImageWidth = personBMP.width;
@@ -59,13 +59,13 @@ public class GameEntry {
         startLogic();
         WindowManager.setWindowEvent(w,new GameWindowEvent());
     }
-    private static void startLogic() throws Exception {
+    private static void startLogic() {
         gameLogicThread = new GameLogicThread();
         ThreadManager.registerThread(gameLogicThread);
         ThreadManager.startThread(gameLogicThread);
     }
     private static void startBGM() throws Exception {
-        musicThread = new MusicThread("music.wav");
+        musicThread = new MusicThread("/music.wav");
         ThreadManager.registerThread(musicThread);
         ThreadManager.startThread(musicThread);
     }

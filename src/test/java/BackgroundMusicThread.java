@@ -9,7 +9,7 @@ public class BackgroundMusicThread extends Thread {
     private boolean running = false;
     public BackgroundMusicThread() {
         try {
-            File f = new File("test.wav");
+            File f = new File("/test.wav");
             a = AudioManager.openAudioFromFile(f);
         }
         catch (Exception ex) {

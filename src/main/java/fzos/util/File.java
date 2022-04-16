@@ -12,7 +12,7 @@ public class File {
     private final FileDescriptor descriptor;
     public File(String filepath) throws IOException {
         this.filepath = filepath;
-        java.io.File internFile = new java.io.File(filepath);
+        java.io.File internFile = new java.io.File(System.getProperty("user.dir")+filepath);
         fos = new FileInputStream(internFile);
         descriptor = new FileDescriptor();
         descriptor.fileSize = fos.available();
