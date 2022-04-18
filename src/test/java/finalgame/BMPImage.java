@@ -1,6 +1,5 @@
 package finalgame;
 
-import fzos.base.IOStream;
 import fzos.util.File;
 
 public class BMPImage {
